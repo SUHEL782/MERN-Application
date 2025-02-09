@@ -1,7 +1,17 @@
 const userModel = require('../models/user.model');
-const bcrypt = require('bcryptjs'); // Use bcryptjs instead of bcrypt
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const blacklistModel = require('../models/blacklist.model');
+const productModel = require('../models/product.model');  
+const Razorpay = require('razorpay');
+const paymentModel = require('../models/payment.model');
+
+require('dotenv').config();
+
+const instance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 module.exports.signup = async (req, res) => {
     try {
@@ -37,9 +47,6 @@ module.exports.signup = async (req, res) => {
     }
 };
 
-
-
-
 module.exports.signin = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -63,13 +70,11 @@ module.exports.signin = async (req, res) => {
 
 module.exports.logout = async (req, res) => {
     try {
-        // Check if the Authorization header exists
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             return res.status(400).json({ message: 'Authorization header missing' });
         }
 
-        // Extract the token from the Authorization header
         const token = authHeader.split(' ')[1];
         if (!token) {
             return res.status(400).json({ message: 'Token missing in Authorization header' });
@@ -80,7 +85,6 @@ module.exports.logout = async (req, res) => {
             return res.status(400).json({ message: 'User already logged out' });
         }
 
-        // Blacklist the token (i.e., log out the user)
         await blacklistModel.create({ token });
 
         res.status(200).json({ message: 'User logged out successfully' });
@@ -88,16 +92,90 @@ module.exports.logout = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
 module.exports.getProfile = async (req, res) => {
     try {
         const user = await userModel.findById(req.user._id);
         res.status(200).json({
             message: 'User fetched successfully',
             user
-            
-        })
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-}
+};
 
+module.exports.getProducts = async (req, res) => {
+    try {
+        const products = await productModel.find();
+        res.status(200).json({
+            message: 'Products fetched successfully',
+            products
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports.getProductById = async (req, res, next) => {
+    try {
+        const product = await productModel.findById(req.params.productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        req.product = product;
+        next();
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports.createOrder = async (req, res) => {
+    try {
+        const { productId, quantity } = req.body;
+        const product = await productModel.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        const totalPrice = product.price * quantity;
+        
+        const payment = await paymentModel.create({
+            orderId: req.body.orderId || null,
+            paymentId: req.body.paymentId || '',
+            signature: req.body.signature || '',
+            amount: totalPrice,
+            currency: 'INR'
+        });
+
+        res.status(201).json({
+            message: 'Order created successfully',
+            payment
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+module.exports.verifyPayment = async (req, res) => {
+    try {
+        const { paymentId, orderId, signature } = req.body;
+        const key_secret = process.env.RAZORPAY_KEY_SECRET;
+        const { validatePaymentVerification } = require('../node_modules/razorpay/dist/utils/razorpay-utils.js');
+        const isValid = validatePaymentVerification({
+            payment_id: paymentId,
+            order_id: orderId
+        }, signature, key_secret);
+
+        if (isValid) {
+            const payment = await paymentModel.findOneAndUpdate({ paymentId }, { status: 'success' }, { new: true });
+            return res.status(200).json({ message: 'Payment successful', payment });
+        } else {
+            await paymentModel.findOneAndUpdate({ paymentId }, { status: 'failed' }, { new: true });
+        }
+        res.status(400).json({ message: 'Payment verification failed' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};

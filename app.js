@@ -1,19 +1,30 @@
 require('dotenv').config();
+
+const cors = require('cors');
 const express = require('express');
 const app = express();
+app.use(cors());
 const connectDB = require('./config/mongodb');
-const indexRoutes = require('./routes/index.route'); // Correct path to the index route
+const indexRoutes = require('./routes/index.route');
 const userRoutes = require('./routes/user.route');
+const productRoutes = require('./routes/products.routes'); 
+const productcontroller = require('./controllers/product.cotroller');
+
 
 
 connectDB();
 
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Use the correct routes
+
 app.use('/', indexRoutes);
 app.use('/user', userRoutes);
+/*app.use('/products', productRoutes);*/
+////gs://durable-stack-449615-n0.firebasestorage.app "Bucket Storage"
+
 
 app.get('/', (req, res) => {
     res.send('My server is currently running');
