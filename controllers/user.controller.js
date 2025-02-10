@@ -16,7 +16,7 @@ const instance = new Razorpay({
 module.exports.signup = async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
-        console.log("Received data:", { username, email, password, role });
+        ///*console.log("Received data:", { username, email, password, role });/*/
 
         if (!username || !email || !password || !role) {
             return res.status(400).json({ message: 'All fields are required' });
