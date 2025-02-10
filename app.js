@@ -12,15 +12,19 @@ const productcontroller = require('./controllers/product.cotroller');
 // Connect to the database
 connectDB();
 
-// ✅ Explicit CORS Configuration (Fix CORS issue)
+// ✅ Explicit CORS Configuration (Fix Preflight Requests)
 const corsOptions = {
-    origin: "http://localhost:3000", // Allow requests from your frontend
+    origin: "http://localhost:3000", // Allow requests from your React frontend
     methods: "GET,POST,PUT,DELETE,OPTIONS",
     allowedHeaders: "Content-Type,Authorization",
     credentials: true, // Allow cookies if needed
 };
 
+// Enable CORS for all requests
 app.use(cors(corsOptions));
+
+// ✅ Handle Preflight Requests Explicitly
+app.options('*', cors(corsOptions));  // Allow preflight requests for all routes
 
 // Middleware
 app.use(express.json());
@@ -35,7 +39,7 @@ app.get('/', (req, res) => {
     res.send('My server is currently running');
 });
 
-// ✅ Corrected Error Handling Middleware Order
+// ✅ Correct Error Handling Middleware Order
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Route not found' });
 });
