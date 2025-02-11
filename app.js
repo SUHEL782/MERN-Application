@@ -3,28 +3,31 @@ require('dotenv').config();
 const cors = require('cors');
 const express = require('express');
 const app = express();
-app.use(cors());
+
 const connectDB = require('./config/mongodb');
 const indexRoutes = require('./routes/index.route');
 const userRoutes = require('./routes/user.route');
-const productRoutes = require('./routes/products.routes'); 
+const productRoutes = require('./routes/products.routes');
 const productcontroller = require('./controllers/product.cotroller');
-
-
 
 connectDB();
 
+// CORS Configuration
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://your-frontend-domain.com'], // Allow specific origins
+    methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization'
+}));
 
+// Handle preflight requests
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 app.use('/', indexRoutes);
 app.use('/user', userRoutes);
-/*app.use('/products', productRoutes);*/
-////gs://durable-stack-449615-n0.firebasestorage.app "Bucket Storage"
-
+// app.use('/products', productRoutes);
 
 app.get('/', (req, res) => {
     res.send('My server is currently running');
