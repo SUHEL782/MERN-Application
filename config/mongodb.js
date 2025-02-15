@@ -1,21 +1,29 @@
 const mongoose = require('mongoose');
 
-
-// Connect to MongoDB
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI).then(() => {
-            console.log(' Mongodb connected.....');
-        }).catch(err => {
-            console.error(err.message);
-            process.exit(1);
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 20000, // 20s timeout to prevent errors
         });
-    } catch (err) {
-        console.error(err.message);
-        process.exit(1);
-    }
-}    
 
-/*mongodb+srv://workwithsuhel:erOMdtcMcn3BmHjS@application.wxs32.mongodb.net/app*/
+        console.log('🟢 MongoDB connected successfully!');
+        
+        // Handling MongoDB connection events
+        mongoose.connection.on('disconnected', () => {
+            console.log('⚠️ MongoDB disconnected. Reconnecting...');
+            connectDB();
+        });
+
+        mongoose.connection.on('error', (err) => {
+            console.error('❌ MongoDB connection error:', err.message);
+        });
+
+    } catch (err) {
+        console.error('❌ MongoDB Connection Failed:', err.message);
+        process.exit(1); // Exit process if DB fails
+    }
+};
 
 module.exports = connectDB;
