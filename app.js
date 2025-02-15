@@ -9,7 +9,7 @@ const connectDB = require('./config/mongodb');
 const indexRoutes = require('./routes/index.route');
 const userRoutes = require('./routes/user.route');
 const productRoutes = require('./routes/products.routes');
-const productController = require('./controllers/product.controller'); // Fix file name typo
+const productcontroller = require('./controllers/product.cotroller');
 const authMiddleware = require('./middlewares/auth.middleware'); // If authentication is needed
 
 // ✅ Connect to MongoDB
