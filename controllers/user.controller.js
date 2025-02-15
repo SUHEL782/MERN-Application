@@ -42,7 +42,7 @@ module.exports.signup = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("❌ Signup Error:", error);
+        console.error(" Signup Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -69,7 +69,7 @@ module.exports.signin = async (req, res) => {
         return res.status(200).json({ message: 'User logged in successfully', token });
 
     } catch (error) {
-        console.error("❌ Signin Error:", error);
+        console.error(" Signin Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -96,7 +96,7 @@ module.exports.logout = async (req, res) => {
         return res.status(200).json({ message: 'User logged out successfully' });
 
     } catch (error) {
-        console.error("❌ Logout Error:", error);
+        console.error("Logout Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -111,7 +111,7 @@ module.exports.getProfile = async (req, res) => {
         return res.status(200).json({ message: 'User fetched successfully', user });
 
     } catch (error) {
-        console.error("❌ Get Profile Error:", error);
+        console.error(" Get Profile Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -122,7 +122,7 @@ module.exports.getProducts = async (req, res) => {
         return res.status(200).json({ message: 'Products fetched successfully', products });
 
     } catch (error) {
-        console.error("❌ Get Products Error:", error);
+        console.error(" Get Products Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -138,7 +138,7 @@ module.exports.getProductById = async (req, res, next) => {
         next();
 
     } catch (error) {
-        console.error("❌ Get Product By ID Error:", error);
+        console.error(" Get Product By ID Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -164,7 +164,7 @@ module.exports.createOrder = async (req, res) => {
         return res.status(201).json({ message: 'Order created successfully', payment });
 
     } catch (error) {
-        console.error("❌ Create Order Error:", error);
+        console.error("Create Order Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -200,7 +200,7 @@ module.exports.verifyPayment = async (req, res) => {
         }
         
     } catch (error) {
-        console.error("❌ Verify Payment Error:", error);
+        console.error("Verify Payment Error:", error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Apply middleware properly
+
 router.use(authMiddleware.isAuthenticated);
 router.use(authMiddleware.isSeller);
 
